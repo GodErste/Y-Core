@@ -1,0 +1,17 @@
+# This repository publishes runtime files only. Development files stay local.
+/*
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/loader.lua
+!/games/
+/games/*
+!/games/index.lua
+!/catalog/
+/catalog/*
+!/catalog/games.json
+!/shared/
+/shared/*
+!/shared/Framework/
+/shared/Framework/*
+!/shared/Framework/*.lua

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "defaultGame": "shinsei",
+  "publicBaseUrl": "https://raw.githubusercontent.com/GodErste/Y-Core/main/",
+  "games": [
+    {
+      "id": "slayers2",
+      "name": "Slayers 2",
+      "title": "Y Hub - Slayers 2",
+      "version": "0.1.0",
+      "updatedAt": "2026-09-22",
+      "entry": "games/Slayers2/init.lua",
+      "bundleName": "Slayers2.luau",
+      "manifest": "games/Slayers2/Metadatas/Manifest.lua",
+      "placeIds": [136406881576517],
+      "platforms": ["PC", "Mobile"]
+    },
+    {
+      "id": "bridger",
+      "name": "Bridger",
+      "title": "Y Hub - Bridger",
+      "version": "0.1.3",
+      "updatedAt": "2026-09-22",
+      "entry": "games/Bridger/init.lua",
+      "bundleName": "Bridger.luau",
+      "manifest": "games/Bridger/Metadatas/Manifest.lua",
+      "placeIds": [133950099874787],
+      "platforms": ["PC"]
+    },
+    {
+      "id": "shinsei",
+      "name": "Shinsei",
+      "title": "Y Auto Signal",
+      "version": "0.1.0",
+      "updatedAt": "2026-09-22",
+      "entry": "games/Shinsei/init.lua",
+      "bundleName": "Shinsei.luau",
+      "manifest": "games/Shinsei/Metadatas/Manifest.lua",
+      "placeIds": [136532079004320],
+      "platforms": ["PC"]
+    },
+    {
+      "id": "shindolife",
+      "name": "Shindo Life",
+      "title": "Y Hub - Shindo Life",
+      "version": "0.1.0",
+      "updatedAt": "2026-09-22",
+      "entry": "games/ShindoLife/init.lua",
+      "bundleName": "ShindoLife.luau",
+      "manifest": "games/ShindoLife/Metadatas/Manifest.lua",
+      "placeIds": [4616652839],
+      "platforms": ["PC"]
+    },
+    {
+      "id": "gakuran",
+      "name": "Gakuran",
+      "title": "Y Hub - Gakuran",
+      "version": "0.3.3",
+      "updatedAt": "2026-09-22",
+      "entry": "games/Gakuran/init.lua",
+      "bundleName": "Gakuran.luau",
+      "manifest": "games/Gakuran/Metadatas/Manifest.lua",
+      "placeIds": [128736949265057],
+      "platforms": ["PC", "Mobile"]
+    }
+  ]
+}

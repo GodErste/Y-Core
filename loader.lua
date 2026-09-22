@@ -477,7 +477,8 @@ local Preflight = require("./Preflight")
 local UI = require("./UI")
 
 --//Variables
-local Bootstrap = { Version = 2 }
+-- Existing builds can consume this handoff; new preflight reuse also requires the fields below.
+local Bootstrap = { Version = 1 }
 
 --//Source
 function Bootstrap.Run(Inherited, ExpectedGame)

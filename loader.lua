@@ -192,10 +192,10 @@ function Progress:WaitForEntry()
 	return not self.Destroyed
 end
 
-function Progress:SetStage(Index)
+function Progress:SetStage(Index, Message)
 	if self.Destroyed or self.Resolved then return end
 	self.Stage = math.max(self.Stage, math.clamp(Index, 1, 3))
-	self.Title.Text = self.Stage == 1 and "Starting up" or "Checking compatibility"
+	self.Title.Text = Message or (self.Stage == 1 and "Starting up" or "Checking compatibility")
 	self:Animate("Fill", self.Fill, { Size = UDim2.fromScale(({ 0.16, 0.48, 0.8 })[self.Stage], 1) }, 0.38)
 end
 
@@ -238,7 +238,7 @@ Modules["init"] = function(require)
 local Progress = require("./Progress")
 
 return {
-	Version = "1.0.0",
+	Version = "1.0.1",
 	CreateProgress = Progress.new,
 }
 
@@ -261,18 +261,31 @@ local Required = {
 }
 
 --//Source
-function Compatibility.Check(Environment, OnStage)
-	local Result = { Supported = false, Executor = "Unknown executor", Missing = {}, Failed = {} }
+local function Resolve(Environment)
 	local ExecutorEnvironment
 	if type(Environment.getgenv) == "function" then
 		local Success, Value = pcall(Environment.getgenv)
 		if Success and type(Value) == "table" then ExecutorEnvironment = Value end
 	end
-	local Functions = setmetatable({}, { __index = function(_, Name)
+	return setmetatable({}, { __index = function(_, Name)
 		local Value = Environment[Name]
 		if Value ~= nil then return Value end
 		return ExecutorEnvironment and ExecutorEnvironment[Name]
 	end })
+end
+
+function Compatibility.GetRequest(Environment)
+	local Functions = Resolve(Environment)
+	for _, Candidate in pairs({ Functions.request, Functions.http_request,
+		type(Functions.http) == "table" and Functions.http.request, type(Functions.syn) == "table" and Functions.syn.request }) do
+		if type(Candidate) == "function" then return Candidate end
+	end
+	return nil
+end
+
+function Compatibility.Check(Environment, OnStage)
+	local Result = { Supported = false, Executor = "Unknown executor", Missing = {}, Failed = {} }
+	local Functions = Resolve(Environment)
 	local function Stage(Index, Message)
 		if OnStage then OnStage(Index, Message) end
 	end
@@ -286,12 +299,7 @@ function Compatibility.Check(Environment, OnStage)
 	for _, Name in ipairs(Required) do
 		if type(Functions[Name]) ~= "function" then Result.Missing[#Result.Missing + 1] = Name end
 	end
-	local Request
-	for _, Candidate in pairs({ Functions.request, Functions.http_request,
-		Functions.http and Functions.http.request, Functions.syn and Functions.syn.request }) do
-		if type(Candidate) == "function" then Request = Candidate break end
-	end
-	if not Request then Result.Missing[#Result.Missing + 1] = "request" end
+	if not Compatibility.GetRequest(Environment) then Result.Missing[#Result.Missing + 1] = "request" end
 	if #Result.Missing > 0 then return Result end
 
 	Stage(3, "Verifying function behavior...")
@@ -324,16 +332,159 @@ end
 return Compatibility
 
 end)()
+local StartupRegistry = (function()
+-- Generated from catalog/games.json by tools/catalog/sync.mjs.
+--//Variables
+local GameRegistry = {
+	Default = "shinsei",
+	PublicBaseUrl = "https://raw.githubusercontent.com/GodErste/Y-Core/main/",
+	Games = {
+		slayers2 = {
+			Name = "Y Hub - Slayers 2",
+			DisplayName = "Slayers 2",
+			Version = "0.1.0",
+			UpdatedAt = "2026-09-22",
+			Entry = "games/Slayers2/init.lua",
+			BundleName = "Slayers2.luau",
+			BundleUrl = "https://raw.githubusercontent.com/GodErste/Y-Core-Builds/main/Slayers2.luau",
+			Manifest = "games/Slayers2/Metadatas/Manifest.lua",
+			PlaceIds = { 136406881576517 },
+		},
+		bridger = {
+			Name = "Y Hub - Bridger",
+			DisplayName = "Bridger",
+			Version = "0.1.3",
+			UpdatedAt = "2026-09-22",
+			Entry = "games/Bridger/init.lua",
+			BundleName = "Bridger.luau",
+			BundleUrl = "https://raw.githubusercontent.com/GodErste/Y-Core-Builds/main/Bridger.luau",
+			Manifest = "games/Bridger/Metadatas/Manifest.lua",
+			PlaceIds = { 133950099874787 },
+		},
+		shinsei = {
+			Name = "Y Auto Signal",
+			DisplayName = "Shinsei",
+			Version = "0.1.0",
+			UpdatedAt = "2026-09-22",
+			Entry = "games/Shinsei/init.lua",
+			BundleName = "Shinsei.luau",
+			BundleUrl = "https://raw.githubusercontent.com/GodErste/Y-Core-Builds/main/Shinsei.luau",
+			Manifest = "games/Shinsei/Metadatas/Manifest.lua",
+			PlaceIds = { 136532079004320 },
+		},
+		shindolife = {
+			Name = "Y Hub - Shindo Life",
+			DisplayName = "Shindo Life",
+			Version = "0.1.0",
+			UpdatedAt = "2026-09-22",
+			Entry = "games/ShindoLife/init.lua",
+			BundleName = "ShindoLife.luau",
+			BundleUrl = "https://raw.githubusercontent.com/GodErste/Y-Core-Builds/main/ShindoLife.luau",
+			Manifest = "games/ShindoLife/Metadatas/Manifest.lua",
+			PlaceIds = { 4616652839 },
+		},
+		gakuran = {
+			Name = "Y Hub - Gakuran",
+			DisplayName = "Gakuran",
+			Version = "0.3.3",
+			UpdatedAt = "2026-09-22",
+			Entry = "games/Gakuran/init.lua",
+			BundleName = "Gakuran.luau",
+			BundleUrl = "https://raw.githubusercontent.com/GodErste/Y-Core-Builds/main/Gakuran.luau",
+			Manifest = "games/Gakuran/Metadatas/Manifest.lua",
+			PlaceIds = { 128736949265057 },
+		},
+	},
+}
+
+--//Source
+function GameRegistry.NormalizeGameId(GameId)
+	local Id = tostring(GameId or ""):lower()
+	if Id == "ouwland" or Id == "slayers 2" then return "slayers2" end
+	return Id == "bridge" and "bridger" or Id
+end
+
+function GameRegistry.GetGame(GameId)
+	return GameRegistry.Games[GameRegistry.NormalizeGameId(GameId)]
+end
+
+function GameRegistry.FindByPlaceId(PlaceId)
+	local Id = tonumber(PlaceId)
+	if not Id then return nil end
+	for GameId, Info in pairs(GameRegistry.Games) do
+		for _, Registered in ipairs(Info.PlaceIds) do
+			if Registered == Id then return GameId end
+		end
+	end
+	return nil
+end
+
+return GameRegistry
+
+end)()
+local StartupPreflight = (function(require)
+local Registry = require("./Registry")
+local Compatibility = require("./Compatibility")
+
+--//Variables
+local Preflight = {}
+local Endpoint = "https://useyhub.com/api/v1/catalog"
+
+--//Source
+function Preflight.GetGame(PlaceId, ExpectedGame)
+	local GameId = Registry.FindByPlaceId(PlaceId)
+	if not GameId or (ExpectedGame and Registry.NormalizeGameId(ExpectedGame) ~= GameId) then return nil end
+	return GameId
+end
+
+function Preflight.CheckWebsite(Environment, Cancelled)
+	local Request = Compatibility.GetRequest(Environment)
+	if type(Request) ~= "function" then return false, "Connection failed" end
+	local Active, Done, Available, Message = true, false, false, "Connection failed"
+	local Deadline = os.clock() + 6
+	task.spawn(function()
+		local Success, Response = pcall(Request, {
+			Url = Endpoint, Method = "GET", Headers = { Accept = "application/json" },
+		})
+		if not Active or Cancelled() then return end
+		if Success and type(Response) == "table" then
+			local Code = tonumber(Response.StatusCode)
+			Message = Code == 429 and "Service busy" or "Website unavailable"
+			if Code == 200 and type(Response.Body) == "string" and #Response.Body <= 65536 then
+				local Parsed, Body = pcall(function() return game:GetService("HttpService"):JSONDecode(Response.Body) end)
+				Available = Parsed and type(Body) == "table" and type(Body.games) == "table" and type(Body.sales) == "table"
+			end
+		end
+		Done = true
+	end)
+	while not Done and os.clock() < Deadline and not Cancelled() do task.wait(0.05) end
+	Active = false
+	if Cancelled() then return false, "cancelled" end
+	if not Done then return false, "Connection timed out" end
+	return Available, Message
+end
+
+return Preflight
+
+end)(function(Name)
+    if Name == "./Registry" then return StartupRegistry end
+    if Name == "./Compatibility" then return StartupCompatibility end
+    error("Unknown preflight module")
+end)
 local Startup = (function(require)
 local Compatibility = require("./Compatibility")
+local Preflight = require("./Preflight")
 local UI = require("./UI")
 
 --//Variables
-local Bootstrap = { Version = 1 }
+local Bootstrap = { Version = 2 }
 
 --//Source
-function Bootstrap.Run(Inherited)
-	if type(Inherited) == "table" and Inherited.Supported == true and Inherited.Handoff == true
+function Bootstrap.Run(Inherited, ExpectedGame)
+	local PlaceId = game.PlaceId
+	local GameId = Preflight.GetGame(PlaceId, ExpectedGame)
+	if GameId and type(Inherited) == "table" and Inherited.Supported == true and Inherited.Handoff == true
+		and Inherited.GameId == GameId and Inherited.PlaceId == PlaceId and Inherited.WebsiteReady == true
 		and Inherited.Version == Bootstrap.Version and type(Inherited.CheckedAt) == "number"
 		and os.clock() >= Inherited.CheckedAt and os.clock() - Inherited.CheckedAt < 90 then
 		Inherited.Handoff = false
@@ -345,6 +496,11 @@ function Bootstrap.Run(Inherited)
 		return nil
 	end
 	if not Screen:WaitForEntry() then return nil end
+	if not GameId then
+		Screen:SetResult(false, "Game not supported")
+		warn("[Y Hub] Game not supported: " .. tostring(PlaceId))
+		return nil
+	end
 	local Finished = false
 	task.delay(8, function()
 		if not Finished and not Screen.Destroyed then
@@ -369,11 +525,20 @@ function Bootstrap.Run(Inherited)
 		warn("[Y Hub] Unsupported executor: " .. Result.Executor .. "; " .. table.concat(Result.Missing, ", ") .. table.concat(Result.Failed, ", "))
 		return nil
 	end
+	Screen:SetStage(3, "Connecting to Y Hub")
+	local Available, Message = Preflight.CheckWebsite(getfenv(), function() return Screen.Destroyed end)
+	if Screen.Destroyed then return nil end
+	if not Available then
+		Screen:SetResult(false, Message)
+		warn("[Y Hub] " .. Message)
+		return nil
+	end
 	Screen:SetResult(true)
 	task.wait(0.75)
 	if Screen.Destroyed then return nil end
 	if Screen:Dismiss() ~= true then return nil end
 	Result.Version, Result.CheckedAt, Result.Handoff = Bootstrap.Version, os.clock(), true
+	Result.GameId, Result.PlaceId, Result.WebsiteReady = GameId, PlaceId, true
 	return Result
 end
 
@@ -381,6 +546,7 @@ return Bootstrap
 
 end)(function(Name)
     if Name == "./Compatibility" then return StartupCompatibility end
+    if Name == "./Preflight" then return StartupPreflight end
     if Name == "./UI" then return StartupUI end
     error("Unknown startup module")
 end)
@@ -770,13 +936,9 @@ function Framework:Start()
 	--> Load selected game
 	local startSuccess, startResult = xpcall(function()
 		local gameRegistry = self:yrequire("games/index.lua", self.Config.ForceReload == true)
-		local selectedGameId = self.Config.Game
-
-		if selectedGameId == nil and type(gameRegistry.FindByPlaceId) == "function" then
-			selectedGameId = gameRegistry.FindByPlaceId(game.PlaceId)
-		end
-
-		selectedGameId = tostring(selectedGameId or gameRegistry.Default or "shinsei"):lower()
+		local selectedGameId = self.Startup.GameId
+		if selectedGameId == nil then error("Game not supported") end
+		selectedGameId = tostring(selectedGameId):lower()
 		if type(gameRegistry.NormalizeGameId) == "function" then
 			selectedGameId = gameRegistry.NormalizeGameId(selectedGameId)
 		end

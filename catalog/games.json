@@ -12,7 +12,7 @@
       "entry": "games/Slayers2/init.lua",
       "bundleName": "Slayers2.luau",
       "manifest": "games/Slayers2/Metadatas/Manifest.lua",
-      "placeIds": [136406881576517],
+      "placeIds": [136406881576517, 75556147183481],
       "platforms": ["PC", "Mobile"]
     },
     {

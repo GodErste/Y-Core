@@ -13,7 +13,7 @@ local GameRegistry = {
 			BundleName = "Slayers2.luau",
 			BundleUrl = "https://raw.githubusercontent.com/GodErste/Y-Core-Builds/main/Slayers2.luau",
 			Manifest = "games/Slayers2/Metadatas/Manifest.lua",
-			PlaceIds = { 136406881576517 },
+			PlaceIds = { 136406881576517, 75556147183481 },
 		},
 		bridger = {
 			Name = "Y Hub - Bridger",

@@ -98,6 +98,9 @@ function App:StartModules(moduleSpecs)
 end
 
 function App:Destroy()
+	if self.CleanupStarted then return end
+	self.CleanupStarted = true
+	self.Destroyed = true
 	for _, moduleInstance in pairs(self.Modules) do
 		if type(moduleInstance) == "table" and type(moduleInstance.Stop) == "function" then
 			pcall(function()

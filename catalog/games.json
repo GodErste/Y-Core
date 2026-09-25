@@ -19,13 +19,13 @@
       "id": "bridger",
       "name": "Bridger",
       "title": "Y Hub - Bridger",
-      "version": "0.1.3",
-      "updatedAt": "2026-09-22",
+      "version": "0.1.4",
+      "updatedAt": "2026-09-25",
       "entry": "games/Bridger/init.lua",
       "bundleName": "Bridger.luau",
       "manifest": "games/Bridger/Metadatas/Manifest.lua",
       "placeIds": [133950099874787],
-      "platforms": ["PC"]
+      "platforms": ["PC", "Mobile"]
     },
     {
       "id": "shinsei",
